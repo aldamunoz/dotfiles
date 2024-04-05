@@ -29,3 +29,4 @@ Here is a list of programs and tools whose configurations are included in these 
 - **kitty**: GPU-Acelerade Terminal emulator
 - **dunst**: Notification service
 - **thunar**: xfce4 file manager
+- **btop**: system info utility
