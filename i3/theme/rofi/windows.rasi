@@ -1,17 +1,13 @@
-/**
- * Copyright (C) 2020-2024 Aditya Shakya <adi1090x@gmail.com>
- **/
-
 /*****----- Configuration -----*****/
 configuration {
 	modi:                       "window";
-    show-icons:                 false;
+    show-icons:                 true;
     display-drun:               " Apps";
     display-run:                " Run";
     display-filebrowser:        " Files";
     display-window:             " Windows";
 	drun-display-format:        "{name}";
-	window-format:              "{c} · {t}";
+	window-format:              " {c} · {t}";
 }
 
 /*****----- Global Properties -----*****/

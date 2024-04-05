@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
-
-## Copyright (C) 2020-2024 Aditya Shakya <adi1090x@gmail.com>
-##
 ## Run ncmpcpp with alternate config
 
 # i3 directory
-DIR="$HOME/.config/i3"
+DIR="$HOME/.config"
 
-CONFIG="$DIR/alacritty/alacritty.toml"
+CONFIG="$DIR/kitty/kitty.conf"
 
-alacritty --class 'Music,Music' --config-file "$CONFIG" \
-		  -o window.dimensions.columns=105 window.dimensions.lines=22 \
-		  -e ~/.ncmpcpp/scripts/ncmpcpp-art
+kitty --class 'Music,Music' --config-file "$CONFIG" \
+	  --start-as=normal --keep-focus --detach \
+      --window-size=105x22 \
+      --command='~/.config/.ncmpcpp/scripts/ncmpcpp-art'
