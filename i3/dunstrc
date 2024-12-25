@@ -3,9 +3,9 @@ monitor = 0
 follow = mouse
 width = 300
 height = 80
-origin = top-right
-offset = 10x48
-corner_radius = 0
+origin = bottom-right
+offset = 10x50
+corner_radius = 5
 scale = 0
 notification_limit = 0
 progress_bar = true
@@ -54,16 +54,16 @@ class = Dunst
 timeout = 2
 background = "#1e222a"
 foreground = "#c8ccd4"
-frame_color = "#da6e89"
+frame_color = "#b8bb26"
 
 [urgency_normal]
 timeout = 5
 background = "#1e222a"
 foreground = "#c8ccd4"
-frame_color = "#da6e89"
+frame_color = "#b8bb26"
 
 [urgency_critical]
 timeout = 0
 background = "#1e222a"
 foreground = "#e06c75"
-frame_color = "#e06c75"
+frame_color = "#b8bb26"

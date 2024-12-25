@@ -11,17 +11,17 @@ export XDG_CURRENT_DESKTOP='i3'
 # Kill already running process
 _ps=(xsettingsd ksuperkey)
 for _prs in "${_ps[@]}"; do
-	if [[ `pidof ${_prs}` ]]; then
-		killall -9 ${_prs}
-	fi
+  if [[ $(pidof ${_prs}) ]]; then
+    killall -9 ${_prs}
+  fi
 done
 
 # Lauch xsettingsd daemon
 xsettingsd --config="$idir"/xsettingsd &
 
 # polkit agent
-if [[ ! `pidof xfce-polkit` ]]; then
-	/usr/lib/xfce-polkit/xfce-polkit &
+if [[ ! $(pidof xfce-polkit) ]]; then
+  /usr/lib/xfce-polkit/xfce-polkit &
 fi
 
 # Enable power management
@@ -35,7 +35,7 @@ ksuperkey -e 'Super_R=Alt_L|F1' &
 xsetroot -cursor_name left_ptr
 
 # Restore wallpaper
-hsetroot -cover "$idir"/theme/wallpaper_sunset
+xwallpaper --zoom "$idir"/wallpapers/gruvbox.png
 
 # Lauch notification daemon
 "$idir"/scripts/i3_dunst
