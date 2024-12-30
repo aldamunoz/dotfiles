@@ -31,3 +31,8 @@ Here is a list of programs and tools whose configurations are included in these 
 - **dunst**: Notification service
 - **thunar**: xfce4 file manager
 - **xwallpaper**: set the wallpaper
+- **viewnior**: Simple minimalist image viewer
+- **tee**
+- **pulsemixer**: CLI and curses mixer for pulseaudio
+- **xdotool**:
+- **xsettingsd**: Setttings deamon to manage X apps

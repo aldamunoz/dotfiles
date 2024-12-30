@@ -1,50 +1,85 @@
 #!/usr/bin/env bash
-##
-## Autostart Programs
 
-# i3 dir
+##
+## Improved Autostart Script for i3
+
+# i3 config directory
 idir="$HOME/.config/i3"
 
 # Export desktop session
-export XDG_CURRENT_DESKTOP='i3'
+export XDG_CURRENT_DESKTOP="i3"
 
-# Kill already running process
-_ps=(xsettingsd ksuperkey)
-for _prs in "${_ps[@]}"; do
-  if [[ $(pidof ${_prs}) ]]; then
-    killall -9 ${_prs}
+# Function to kill a process safely
+kill_safe() {
+  local process="$1"
+  if pidof "$process" &>/dev/null; then
+    echo "Stopping $process..."
+    killall "$process" || killall -9 "$process"
+  fi
+}
+
+# Check if a command exists
+command_exists() {
+  command -v "$1" &>/dev/null
+}
+
+# Processes to kill before autostart
+processes_to_kill=(xsettingsd ksuperkey)
+for process in "${processes_to_kill[@]}"; do
+  kill_safe "$process"
+done
+
+# Start xsettingsd
+if command_exists xsettingsd; then
+  xsettingsd --config="$idir/xsettingsd" &
+  echo "xsettingsd started."
+else
+  echo "xsettingsd not found."
+fi
+
+# Start polkit agent
+if ! pidof xfce-polkit &>/dev/null && command_exists xfce-polkit; then
+  /usr/lib/xfce-polkit/xfce-polkit &
+  echo "xfce-polkit started."
+fi
+
+# Start power manager
+if command_exists xfce4-power-manager; then
+  xfce4-power-manager &
+  echo "xfce4-power-manager started."
+fi
+
+# Enable super keys
+if command_exists ksuperkey; then
+  ksuperkey -e 'Super_L=Alt_L|F1' &
+  ksuperkey -e 'Super_R=Alt_L|F1' &
+  echo "ksuperkey started."
+fi
+
+# Fix mouse cursor
+if command_exists xsetroot; then
+  xsetroot -cursor_name left_ptr
+fi
+
+# Restore wallpaper
+if command_exists xwallpaper; then
+  xwallpaper --zoom "$idir/wallpapers/gruvbox.png"
+fi
+
+# Launch other components
+for script in i3_dunst i3_bar i3_comp; do
+  if [[ -x "$idir/scripts/$script" ]]; then
+    "$idir/scripts/$script" &
+    echo "$script started."
+  else
+    echo "$idir/scripts/$script not found or not executable."
   fi
 done
 
-# Lauch xsettingsd daemon
-xsettingsd --config="$idir"/xsettingsd &
-
-# polkit agent
-if [[ ! $(pidof xfce-polkit) ]]; then
-  /usr/lib/xfce-polkit/xfce-polkit &
+# Start mpd (Music Player Daemon)
+if command_exists mpd; then
+  exec mpd &
+  echo "mpd started."
 fi
 
-# Enable power management
-xfce4-power-manager &
-
-# Enable Super Keys For Menu
-ksuperkey -e 'Super_L=Alt_L|F1' &
-ksuperkey -e 'Super_R=Alt_L|F1' &
-
-# Fix cursor
-xsetroot -cursor_name left_ptr
-
-# Restore wallpaper
-xwallpaper --zoom "$idir"/wallpapers/gruvbox.png
-
-# Lauch notification daemon
-"$idir"/scripts/i3_dunst
-
-# Lauch polybar
-"$idir"/scripts/i3_bar
-
-# Lauch compositor
-"$idir"/scripts/i3_comp
-
-# Start mpd
-exec mpd &
+echo "i3 environment setup complete."
