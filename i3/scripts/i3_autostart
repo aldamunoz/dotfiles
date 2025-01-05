@@ -24,7 +24,7 @@ command_exists() {
 }
 
 # Processes to kill before autostart
-processes_to_kill=(xsettingsd ksuperkey)
+processes_to_kill=(xsettingsd ksuperkey xfce-polkit)
 for process in "${processes_to_kill[@]}"; do
   kill_safe "$process"
 done
@@ -38,10 +38,8 @@ else
 fi
 
 # Start polkit agent
-if ! pidof xfce-polkit &>/dev/null && command_exists xfce-polkit; then
-  /usr/lib/xfce-polkit/xfce-polkit &
-  echo "xfce-polkit started."
-fi
+/usr/lib/xfce-polkit/xfce-polkit &
+echo "xfce-polkit started."
 
 # Start power manager
 if command_exists xfce4-power-manager; then
@@ -64,6 +62,7 @@ fi
 # Restore wallpaper
 if command_exists xwallpaper; then
   xwallpaper --zoom "$idir/wallpapers/gruvbox.png"
+  echo "wallpaper set successfully."
 fi
 
 # Launch other components
