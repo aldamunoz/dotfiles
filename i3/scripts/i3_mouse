@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# TODO: This file is not being used right now
+#
+# Adjusts mouse sensitivity for libinput or legacy xinput devices.
+
+MOUSE_NAME="Genius Wireless Device Mouse" # part of your mouse name
+SENSITIVITY=-0.5                          # range: -1.0 (slow) to +1.0 (fast)
+
+mapfile -t MOUSE_IDS < <(
+  xinput list | awk -v name="$MOUSE_NAME" '
+    tolower($0) ~ tolower(name) && /pointer/ {
+      if (match($0, /id=[0-9]+/)) {
+        print substr($0, RSTART+3, RLENGTH-3)
+      }
+    }'
+)
+
+if [ ${#MOUSE_IDS[@]} -eq 0 ]; then
+  echo "No pointer devices found matching \"$MOUSE_NAME\""
+  exit 1
+fi
+
+for id in "${MOUSE_IDS[@]}"; do
+  echo "Adjusting device ID $id"
+
+  # Detect whether libinput or legacy driver
+  if xinput list-props "$id" | grep -q "libinput Accel Speed"; then
+    PROP="libinput Accel Speed"
+    echo "Using libinput property..."
+    xinput set-prop "$id" "$PROP" "$SENSITIVITY"
+  elif xinput list-props "$id" | grep -q "Accel Constant Deceleration"; then
+    PROP=$(xinput list-props "$id" | grep "Accel Constant Deceleration" | cut -d'(' -f2 | cut -d')' -f1)
+    echo "Using legacy deceleration property..."
+    xinput set-prop "$id" "$PROP" "$SENSITIVITY"
+  else
+    echo "No known sensitivity property found for device ID $id"
+  fi
+done
+
+echo "Done."

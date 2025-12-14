@@ -33,9 +33,9 @@ print_status() {
       echo "%{F$POWER_ON}%{T2}%{T-} %{F-}On"
     fi
 
+    # use bluetoothctl devices Paired to get devices paired
     paired_devices_cmd="devices Paired"
     # Check if an outdated version of bluetoothctl is used to preserve backwards compatibility
-
     bt_version=$(bluetoothctl version 2>/dev/null | awk '{print $NF}')
 
     # Check if bt_version is a valid float
@@ -51,21 +51,30 @@ print_status() {
     fi
 
     mapfile -t paired_devices < <(bluetoothctl $paired_devices_cmd | grep Device | cut -d ' ' -f 2)
-    counter=0
 
+    # let's get the total devices connected
+    connected_count=0
     for device in "${paired_devices[@]}"; do
       if device_connected "$device"; then
-        device_alias=$(bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-)
-
-        if [ $counter -gt 0 ]; then
-          echo "%{F$POWER_ON}%{T2}%{T-} %{F-}$device_alias"
-        else
-          echo "%{F$POWER_ON}%{T2}%{T-} %{F-}$device_alias"
-        fi
-
-        ((counter++))
+        ((connected_count++))
       fi
     done
+
+    if [ "$connected_count" -eq 0 ]; then
+      # No devices connected
+      echo "%{F$POWER_OFF}%{T2}%{T-}%{F-}"
+    elif [ "$connected_count" -eq 1 ]; then
+      # One device connected — show its name
+      device=$(for d in "${paired_devices[@]}"; do
+        if device_connected "$d"; then echo "$d"; fi
+      done | head -n1)
+      device_alias=$(bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-)
+      echo "%{F$POWER_ON}%{T2}%{T-}%{F-} $device_alias"
+    else
+      # More than one device — just show number of connected devices
+      echo "%{F$POWER_ON}%{T2}%{T-}%{F-} ${connected_count} Devices"
+    fi
+
   else
     echo "%{F$POWER_OFF}%{T2}󰂲%{T-} Off%{F-}"
   fi
