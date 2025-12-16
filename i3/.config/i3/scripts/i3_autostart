@@ -29,31 +29,18 @@ for process in "${processes_to_kill[@]}"; do
   kill_safe "$process"
 done
 
-# Start xsettingsd
-if command_exists xsettingsd; then
-  xsettingsd --config="$idir/xsettingsd" &
-  echo "xsettingsd started."
-else
-  echo "xsettingsd not found."
-fi
-
 # Start polkit agent
-/usr/lib/xfce-polkit/xfce-polkit &
-echo "xfce-polkit started."
-
-# Start power manager
-if command_exists xfce4-power-manager; then
-  xfce4-power-manager &
-  echo "xfce4-power-manager started."
+if ! pgrep -x "polkit-gnome-authentication-agent-1" &>/dev/null; then
+  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
+  echo "polkit-gnome started."
 fi
 
-# Enable super keys
-if command_exists ksuperkey; then
+# Enable super keys (only start if it's not running)
+if command_exists ksuperkey && ! pgrep -x "ksuperkey" &>/dev/null; then
   ksuperkey -e 'Super_L=Alt_L|F1' &
   ksuperkey -e 'Super_R=Alt_L|F1' &
   echo "ksuperkey started."
 fi
-
 # Fix mouse cursor
 if command_exists xsetroot; then
   xsetroot -cursor_name left_ptr
@@ -61,24 +48,22 @@ fi
 
 # Restore wallpaper
 if command_exists xwallpaper; then
-  xwallpaper --zoom "$idir/wallpapers/gruvbox.png"
+  xwallpaper --zoom "$idir/wallpapers/endeavour.png"
   echo "wallpaper set successfully."
 fi
 
-# Launch other components
+# Launch i3 components
 for script in i3_dunst i3_bar i3_comp; do
-  if [[ -x "$idir/scripts/$script" ]]; then
-    "$idir/scripts/$script" &
+  script_path="$idir/scripts/$script"
+  if [[ -x "$script_path" ]]; then
+    "$script_path" &
     echo "$script started."
   else
-    echo "$idir/scripts/$script not found or not executable."
+    echo "$script_path not found or not executable."
   fi
 done
 
-# Start mpd (Music Player Daemon)
-if command_exists mpd; then
-  exec mpd &
-  echo "mpd started."
-fi
+# Lock the screen when system suspend
+xss-lock -- betterlockscreen -l &
 
 echo "i3 environment setup complete."

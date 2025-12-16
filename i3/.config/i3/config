@@ -196,7 +196,6 @@ tiling_drag modifier titlebar
 
 # set the config monitor automatically
 exec_always --no-startup-id ~/.config/i3/monitor.sh
-# Update the lock screen image for betterlockscreen 
-exec --no-startup-id ~/.config/i3/betterlockscreen.sh
+# Execute autostart script
 exec_always --no-startup-id ~/.config/i3/scripts/i3_autostart
 
