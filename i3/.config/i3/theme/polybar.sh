@@ -1,42 +1,86 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-## Files and Directories
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+## -------------------------------------------------
+## Paths
+## -------------------------------------------------
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SFILE="$DIR/system.ini"
 RFILE="$DIR/.system"
 
-## Get system variable values for various modules
-get_values() {
-  CARD=$(light -L | grep 'backlight' | head -n1 | cut -d'/' -f3)
-  BATTERY=$(upower -i $(upower -e | grep 'BAT') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
-  ADAPTER=$(upower -i $(upower -e | grep 'AC') | grep 'native-path' | cut -d':' -f2 | tr -d '[:blank:]')
-  INTERFACE=$(ip link | awk '/state UP/ {print $2}' | tr -d :)
+## -------------------------------------------------
+## Helpers
+## -------------------------------------------------
+command_exists() {
+  command -v "$1" &>/dev/null
 }
 
-## Write values to `system.ini` file
-set_values() {
-  if [[ "$ADAPTER" ]]; then
-    sed -i -e "s/sys_adapter = .*/sys_adapter = $ADAPTER/g" ${SFILE}
-  fi
-  if [[ "$BATTERY" ]]; then
-    sed -i -e "s/sys_battery = .*/sys_battery = $BATTERY/g" ${SFILE}
-  fi
-  if [[ "$CARD" ]]; then
-    sed -i -e "s/sys_graphics_card = .*/sys_graphics_card = $CARD/g" ${SFILE}
-  fi
-  if [[ "$INTERFACE" ]]; then
-    sed -i -e "s/sys_network_interface = .*/sys_network_interface = $INTERFACE/g" ${SFILE}
+set_ini_value() {
+  local key="$1"
+  local value="$2"
+
+  if grep -q "^$key =" "$SFILE"; then
+    sed -i "s|^$key = .*|$key = $value|" "$SFILE"
+  else
+    echo "$key = $value" >>"$SFILE"
   fi
 }
-## Launch Polybar with selected style
+
+## -------------------------------------------------
+## Detect system values
+## -------------------------------------------------
+get_backlight() {
+  if command_exists light; then
+    light -L | awk -F/ '/backlight/ {print $NF; exit}'
+  elif [[ -d /sys/class/backlight ]]; then
+    ls /sys/class/backlight | head -n1
+  fi
+}
+
+get_battery() {
+  upower -e 2>/dev/null | grep -E 'BAT|battery' | head -n1 | xargs -r upower -i |
+    awk -F: '/native-path/ {gsub(/ /,"",$2); print $2}'
+}
+
+get_adapter() {
+  upower -e 2>/dev/null | grep -E 'AC|line_power' | head -n1 | xargs -r upower -i |
+    awk -F: '/native-path/ {gsub(/ /,"",$2); print $2}'
+}
+
+get_network_interface() {
+  ip route get 1.1.1.1 2>/dev/null | awk '{print $5; exit}'
+}
+
+## -------------------------------------------------
+## Apply values
+## -------------------------------------------------
+apply_values() {
+  local card battery adapter iface
+
+  card="$(get_backlight || true)"
+  battery="$(get_battery || true)"
+  adapter="$(get_adapter || true)"
+  iface="$(get_network_interface || true)"
+
+  [[ -n "$adapter" ]] && set_ini_value sys_adapter "$adapter"
+  [[ -n "$battery" ]] && set_ini_value sys_battery "$battery"
+  [[ -n "$card" ]] && set_ini_value sys_graphics_card "$card"
+  [[ -n "$iface" ]] && set_ini_value sys_network_interface "$iface"
+}
+
+## -------------------------------------------------
+## Launch Polybar
+## -------------------------------------------------
 launch_bar() {
-  bash "$DIR"/polybar/launch.sh
+  bash "$DIR/polybar/launch.sh"
 }
 
-# Execute functions
-if [[ ! -f "$RFILE" ]]; then
-  get_values
-  set_values
-  touch ${RFILE}
+## -------------------------------------------------
+## Main
+## -------------------------------------------------
+if [[ ! -f "$RFILE" || "${1:-}" == "--refresh" ]]; then
+  apply_values
+  touch "$RFILE"
 fi
+
 launch_bar
