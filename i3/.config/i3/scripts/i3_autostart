@@ -1,69 +1,128 @@
 #!/usr/bin/env bash
 
 ##
-## Improved Autostart Script for i3
+## i3 Autostart Script (WM-only, DE-agnostic)
+
+set -e
 
 # i3 config directory
 idir="$HOME/.config/i3"
 
 # Export desktop session
-export XDG_CURRENT_DESKTOP="i3"
+export XDG_CURRENT_DESKTOP=i3
+export XDG_SESSION_DESKTOP=i3
 
-# Function to kill a process safely
+# --------------------------------------------------
+# Helpers
+# --------------------------------------------------
+
 kill_safe() {
   local process="$1"
-  if pidof "$process" &>/dev/null; then
+  if pgrep -x "$process" &>/dev/null; then
     echo "Stopping $process..."
-    killall "$process" || killall -9 "$process"
+    pkill "$process"
   fi
 }
 
-# Check if a command exists
 command_exists() {
   command -v "$1" &>/dev/null
 }
 
-# Processes to kill before autostart
-processes_to_kill=(xsettingsd ksuperkey xfce-polkit)
+start_once() {
+  local process="$1"
+  shift
+  if ! pgrep -x "$process" &>/dev/null; then
+    "$@" &
+    echo "$process started."
+  fi
+}
+
+# --------------------------------------------------
+# Clean up previous instances (for i3 reload)
+# --------------------------------------------------
+
+processes_to_kill=(
+  xsettingsd
+  ksuperkey
+  xfce-polkit
+  polkit-gnome-authentication-agent-1
+  xss-lock
+  dunst
+)
+
 for process in "${processes_to_kill[@]}"; do
   kill_safe "$process"
 done
 
-# Start polkit agent
-if ! pgrep -x "polkit-gnome-authentication-agent-1" &>/dev/null; then
-  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-  echo "polkit-gnome started."
+# --------------------------------------------------
+# GNOME Keyring (libsecret provider)
+# --------------------------------------------------
+
+if command_exists gnome-keyring-daemon; then
+  eval "$(
+    gnome-keyring-daemon \
+      --start \
+      --components=secrets
+  )"
+  export SSH_AUTH_SOCK
+  echo "gnome-keyring (secrets) started."
 fi
 
-# Enable super keys (only start if it's not running)
-if command_exists ksuperkey && ! pgrep -x "ksuperkey" &>/dev/null; then
-  ksuperkey -e 'Super_L=Alt_L|F1' &
-  ksuperkey -e 'Super_R=Alt_L|F1' &
-  echo "ksuperkey started."
-fi
-# Fix mouse cursor
-if command_exists xsetroot; then
-  xsetroot -cursor_name left_ptr
+# Make keyring visible to apps
+dbus-update-activation-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP
+
+# --------------------------------------------------
+# Polkit agent
+# --------------------------------------------------
+
+start_once \
+  polkit-gnome-authentication-agent-1 \
+  /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+
+# --------------------------------------------------
+# Super key helper
+# --------------------------------------------------
+
+if command_exists ksuperkey; then
+  start_once ksuperkey ksuperkey -e 'Super_L=Alt_L|F1'
+  start_once ksuperkey ksuperkey -e 'Super_R=Alt_L|F1'
 fi
 
-# Restore wallpaper
+# --------------------------------------------------
+# Cursor
+# --------------------------------------------------
+
+command_exists xsetroot && xsetroot -cursor_name left_ptr
+
+# --------------------------------------------------
+# Wallpaper
+# --------------------------------------------------
+
 if command_exists xwallpaper; then
   xwallpaper --zoom "$idir/wallpapers/endeavour.png"
-  echo "wallpaper set successfully."
 fi
 
-# Launch i3 components
-for script in i3_dunst i3_bar i3_comp; do
+# Launch dunst daemon
+if command_exists ksuperkey; then
+  start_once dunst &
+
+fi
+# --------------------------------------------------
+# Notifications, bar, compositor
+# --------------------------------------------------
+
+for script in i3_bar i3_comp; do
   script_path="$idir/scripts/$script"
-  if [[ -x "$script_path" ]]; then
-    "$script_path" &
-    echo "$script started."
-  else
-    echo "$script_path not found or not executable."
-  fi
+  [[ -x "$script_path" ]] && "$script_path" &
 done
 
-# Lock the screen when system suspend
-xss-lock -- betterlockscreen -l &
+# --------------------------------------------------
+# Lock screen on suspend
+# --------------------------------------------------
+
+if command_exists xss-lock && command_exists betterlockscreen; then
+  xss-lock -- betterlockscreen -l &
+  echo "xss-lock + betterlockscreen enabled."
+fi
 
 echo "i3 environment setup complete."
