@@ -1,38 +1,50 @@
-# Dotfiles
+# 🧩 Dotfiles – i3 + Arch Linux
 
-## Overview
+Personal Linux environment based on **i3**, **MPD**, and a minimal X11 stack.
+Designed to work on both **desktop and laptop** systems.
 
-This repository contains my dotfiles, which are configuration files for various programs and tools that I use on my system. These dotfiles help me customize and personalize my computing environment to suit my preferences and workflow.
+---
 
-## Installation
+## ✨ Features
 
-To use these dotfiles on your system, follow these steps:
+- i3 window manager
+- Polybar
+- MPD + ncmpcpp
+- Kitty terminal
+- Rofi / Impala
+- Betterlockscreen
+- X11 (no Wayland)
+- Laptop & desktop aware setup
+- GNU Stow–based dotfile management
 
-1. Clone this repository to your local machine:
+---
 
-   ```bash
-   git clone https://github.com/aldamunoz/dotfiles.git ~/.dotfiles
-   ```
+## 📁 Repository Structure
 
-## Installed Programs
+dotfiles/
+├── i3/ → ~/.config/i3
+├── polybar/ → ~/.config/polybar
+├── mpd/ → ~/.config/mpd
+├── ncmpcpp/ → ~/.config/ncmpcpp
+├── kitty/ → ~/.config/kitty
+├── scripts/ → ~/.local/bin
+├── packages/ → package lists
+├── install.sh → install script
+└── README.md
 
-Here is a list of programs and tools whose configurations are included in these dotfiles:
+## 🧰 Requirements
 
-- **i3**: Configuration for the i3 window manager.
-- **Polybar**: Configuration for the Polybar status bar.
-- **lazyvim**: Configuration for the Vim text editor.
-- **zsh**: Configuration for the Bash shell.
-- **Git**: Configuration for the Git version control system.
-- **maim**: Take screenshots
-- **mpd**: Music server
-- **ncmpcpp**: Music player frontend for mpd
-- **rofi**: Menu launcher
-- **kitty**: GPU-Acelerade Terminal emulator
-- **dunst**: Notification service
-- **thunar**: xfce4 file manager
-- **xwallpaper**: set the wallpaper
-- **viewnior**: Simple minimalist image viewer
-- **tee**
-- **pulsemixer**: CLI and curses mixer for pulseaudio
-- **xdotool**:
-- **xsettingsd**: Setttings deamon to manage X apps
+- Arch Linux (or Arch-based)
+- git
+- sudo
+- systemd (user services)
+
+---
+
+## 🚀 Installation
+
+### 1. Clone repository
+
+```bash
+git clone https://github.com/USERNAME/dotfiles.git
+cd dotfiles
