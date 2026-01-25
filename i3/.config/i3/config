@@ -195,7 +195,7 @@ tiling_drag modifier titlebar
 #exec_always [--no-startup-id] <command>
 
 # set the config monitor automatically
-exec_always --no-startup-id ~/.config/i3/monitor.sh
+exec --no-startup-id ~/.config/i3/scripts/monitor.sh
 # Execute autostart script
-exec_always --no-startup-id ~/.config/i3/scripts/i3_autostart
+exec --no-startup-id ~/.config/i3/scripts/i3_autostart
 

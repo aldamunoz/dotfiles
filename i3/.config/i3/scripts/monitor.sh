@@ -33,8 +33,8 @@ if [ -n "$EXTERNAL_MONITORS" ]; then
   echo "Setting primary monitor: $PRIMARY_MONITOR"
   xrandr --output "$PRIMARY_MONITOR" --primary
 
-  if [ -n "$LAPTOP_SCREEN" ]; then
-    echo "Turning off laptop screen: $LAPTOP_SCREEN"
+  # only turn off laptop if at least one external is ON
+  if xrandr | grep -q "$PRIMARY_MONITOR connected"; then
     xrandr --output "$LAPTOP_SCREEN" --off
   fi
 else

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -o pipefail
 
 LOCKSCREEN_IMAGE="$HOME/.config/i3/wallpapers/room.png"
 

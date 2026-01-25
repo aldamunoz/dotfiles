@@ -103,9 +103,8 @@ if command_exists xwallpaper; then
 fi
 
 # Launch dunst daemon
-if command_exists ksuperkey; then
+if command_exists dunst; then
   start_once dunst &
-
 fi
 # --------------------------------------------------
 # Notifications, bar, compositor
