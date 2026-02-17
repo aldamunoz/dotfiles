@@ -1,83 +1,91 @@
 #!/usr/bin/env bash
-##
-## Improved Screenshot Script
 
-# Set variables
-time=$(date +%Y-%m-%d-%H-%M-%S)
-geometry=$(xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current')
+set -u
 
-# Fallback to $HOME/Pictures/Screenshots if XDG fails
+time="$(date +%Y-%m-%d-%H-%M-%S)"
+geometry="$(xrandr | awk '/current/{print $8"x"$10; exit}' | tr -d ',')"
 dir="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/Screenshots"
 file="Screenshot_${time}_${geometry}.png"
+out="${dir}/${file}"
+notify_cmd='dunstify -u low -h string:x-dunst-stack-tag:obscreenshot -i /usr/share/icons/dunst/picture.png'
 
-# Ensure directory exists
 mkdir -p "$dir"
 
-# Log where we're saving
-echo "Saving screenshot to: $dir/$file"
-
-# Notify and view screenshot
-notify_view() {
-  notify_cmd_shot='dunstify -u low -h string:x-dunst-stack-tag:obscreenshot -i /usr/share/icons/dunst/picture.png'
-  ${notify_cmd_shot} "Copied to clipboard."
-  paplay /usr/share/sounds/freedesktop/stereo/screen-capture.oga &>/dev/null &
-  loupe "${dir}/${file}"
-  if [[ -e "${dir}/${file}" ]]; then
-    ${notify_cmd_shot} "Screenshot Saved."
-  else
-    ${notify_cmd_shot} "Screenshot Deleted."
+open_viewer() {
+  if command -v loupe >/dev/null 2>&1; then
+    loupe "$out" >/dev/null 2>&1 &
+  elif command -v viewnior >/dev/null 2>&1; then
+    viewnior "$out" >/dev/null 2>&1 &
+  elif command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$out" >/dev/null 2>&1 &
   fi
 }
 
-# Copy screenshot to clipboard
-copy_shot() {
-  tee "${dir}/${file}" | xclip -selection clipboard -t image/png
+capture_png() {
+  local tmp
+  tmp="$(mktemp /tmp/i3-shot-XXXXXX.png)"
+
+  if "$@" >"$tmp" && [[ -s "$tmp" ]]; then
+    mv "$tmp" "$out"
+    if command -v xclip >/dev/null 2>&1; then
+      xclip -selection clipboard -t image/png <"$out" >/dev/null 2>&1
+    fi
+    return 0
+  fi
+
+  rm -f "$tmp"
+  return 1
 }
 
-# Countdown function
+notify_success() {
+  ${notify_cmd} "Copied to clipboard."
+  paplay /usr/share/sounds/freedesktop/stereo/screen-capture.oga >/dev/null 2>&1 &
+  open_viewer
+  ${notify_cmd} "Screenshot Saved."
+}
+
+notify_cancel() {
+  dunstify -u low -h string:x-dunst-stack-tag:obscreenshot "Screenshot canceled."
+}
+
 countdown() {
-  for sec in $(seq $1 -1 1); do
-    dunstify -t 1000 -h string:x-dunst-stack-tag:screenshottimer -i /usr/share/icons/dunst/timer.png "Taking shot in : $sec"
+  local sec
+  for sec in $(seq "$1" -1 1); do
+    dunstify -t 1000 -h string:x-dunst-stack-tag:screenshottimer -i /usr/share/icons/dunst/timer.png "Taking shot in: $sec"
     sleep 1
   done
 }
 
-# Screenshot functions
-shotnow() {
-  maim -u -f png | copy_shot
-  notify_view
+shot_now() {
+  capture_png maim -u -f png && notify_success || notify_cancel
 }
 
-shot5() {
-  countdown '5'
-  sleep 1 && maim -u -f png | copy_shot
-  notify_view
+shot_5() {
+  countdown 5
+  capture_png maim -u -f png && notify_success || notify_cancel
 }
 
-shot10() {
-  countdown '10'
-  sleep 1 && maim -u -f png | copy_shot
-  notify_view
+shot_10() {
+  countdown 10
+  capture_png maim -u -f png && notify_success || notify_cancel
 }
 
-shotwin() {
-  maim -u -f png -i $(xdotool getactivewindow) | copy_shot
-  notify_view
+shot_win() {
+  local win_id
+  win_id="$(xdotool getactivewindow 2>/dev/null || true)"
+  [[ -n "$win_id" ]] || { notify_cancel; return; }
+  capture_png maim -u -f png -i "$win_id" && notify_success || notify_cancel
 }
 
-shotarea() {
-  maim -u -f png -s -b 2 -c 0.35,0.55,0.85,0.25 -l | copy_shot
-  notify_view
+shot_area() {
+  capture_png maim -u -f png -s -b 2 -c 0.35,0.55,0.85,0.25 -l && notify_success || notify_cancel
 }
 
-# Execute appropriate command
-case "$1" in
---now) shotnow ;;
---in5) shot5 ;;
---in10) shot10 ;;
---win) shotwin ;;
---area) shotarea ;;
-*) echo -e "Available Options : --now --in5 --in10 --win --area" ;;
+case "${1:-}" in
+  --now) shot_now ;;
+  --in5) shot_5 ;;
+  --in10) shot_10 ;;
+  --win) shot_win ;;
+  --area) shot_area ;;
+  *) echo "Available options: --now --in5 --in10 --win --area" ;;
 esac
-
-exit 0
