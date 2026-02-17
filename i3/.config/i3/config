@@ -68,12 +68,6 @@ for_window [class=".*"] title_format "%class | %title"
 ## Enable window icons for all windows
 for_window [all] title_window_icon off
 
-# move tiling windows via drag & drop by left-clicking into the title bar,
-# or left-clicking anywhere into the window while holding the floating modifier.
-tiling_drag modifier titlebar
-
-#------
-
 ## Hiding borders adjacent to the screen edges
 ##
 ## You can hide container borders adjacent to the screen edges using `hide_edge_borders`
@@ -198,4 +192,3 @@ tiling_drag modifier titlebar
 exec --no-startup-id ~/.config/i3/scripts/monitor.sh
 # Execute autostart script
 exec --no-startup-id ~/.config/i3/scripts/i3_autostart
-
