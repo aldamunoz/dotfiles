@@ -1,46 +1,51 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -u
 
 LOG_FILE="/tmp/monitor_setup.log"
 exec >"$LOG_FILE" 2>&1
 
 echo "Monitor setup initiated at $(date)"
 
-# Detect connected displays
-LAPTOP_SCREEN=$(xrandr --query | grep " connected" | grep "eDP" | awk '{ print $1 }')
-EXTERNAL_MONITORS=$(xrandr --query | grep " connected" | grep -v "eDP" | awk '{ print $1 }')
-PRIMARY_MONITOR=$(echo "$EXTERNAL_MONITORS" | head -n 1)
+if ! command -v xrandr >/dev/null 2>&1; then
+  echo "xrandr not found; skipping monitor setup."
+  exit 0
+fi
 
-echo "Detected laptop screen: $LAPTOP_SCREEN"
-echo "Detected external monitors: $EXTERNAL_MONITORS"
+mapfile -t CONNECTED_OUTPUTS < <(xrandr --query | awk '/ connected/{print $1}')
 
-# Retry mechanism in case external monitors take time to initialize
-for i in {1..5}; do
-  if [ -n "$EXTERNAL_MONITORS" ]; then
-    break
+LAPTOP_SCREEN=""
+EXTERNAL_MONITORS=()
+
+for output in "${CONNECTED_OUTPUTS[@]}"; do
+  if [[ "$output" == eDP* || "$output" == LVDS* || "$output" == DSI* ]]; then
+    LAPTOP_SCREEN="$output"
+  else
+    EXTERNAL_MONITORS+=("$output")
   fi
-  echo "No external monitor detected, retrying ($i/5)..."
-  sleep 1
-  EXTERNAL_MONITORS=$(xrandr --query | grep " connected" | grep -v "eDP" | awk '{ print $1 }')
-  PRIMARY_MONITOR=$(echo "$EXTERNAL_MONITORS" | head -n 1)
 done
 
-# Configure monitors
-if [ -n "$EXTERNAL_MONITORS" ]; then
-  echo "Configuring external monitors..."
-  for monitor in $EXTERNAL_MONITORS; do
+echo "Detected laptop screen: ${LAPTOP_SCREEN:-none}"
+echo "Detected external monitors: ${EXTERNAL_MONITORS[*]:-none}"
+
+if [[ "${#EXTERNAL_MONITORS[@]}" -gt 0 ]]; then
+  PRIMARY_MONITOR="${EXTERNAL_MONITORS[0]}"
+  echo "Configuring external monitors; primary: $PRIMARY_MONITOR"
+
+  for monitor in "${EXTERNAL_MONITORS[@]}"; do
     xrandr --output "$monitor" --auto
   done
-  echo "Setting primary monitor: $PRIMARY_MONITOR"
   xrandr --output "$PRIMARY_MONITOR" --primary
 
-  # only turn off laptop if at least one external is ON
-  if xrandr | grep -q "$PRIMARY_MONITOR connected"; then
+  if [[ -n "$LAPTOP_SCREEN" ]]; then
     xrandr --output "$LAPTOP_SCREEN" --off
   fi
 else
-  echo "No external monitor detected. Enabling laptop screen..."
-  if [ -n "$LAPTOP_SCREEN" ]; then
+  echo "No external monitor detected."
+  if [[ -n "$LAPTOP_SCREEN" ]]; then
     xrandr --output "$LAPTOP_SCREEN" --auto --primary
+  else
+    echo "No laptop panel detected either; nothing to configure."
   fi
 fi
 
