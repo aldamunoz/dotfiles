@@ -188,7 +188,9 @@ tiling_drag modifier titlebar
 #exec [--no-startup-id] <command>
 #exec_always [--no-startup-id] <command>
 
-# set the config monitor automatically
-exec --no-startup-id ~/.config/i3/scripts/monitor.sh
-# Execute autostart script
-exec --no-startup-id ~/.config/i3/scripts/i3_autostart
+# Set up monitors (runs on startup and on config reload)
+exec_always --no-startup-id ~/.config/i3/scripts/monitor.sh
+# Hot-plug monitor daemon (restarts polybar when displays change)
+exec_always --no-startup-id ~/.config/i3/scripts/monitor_watch.sh
+# Execute autostart script (runs on startup and on config reload)
+exec_always --no-startup-id ~/.config/i3/scripts/i3_autostart
