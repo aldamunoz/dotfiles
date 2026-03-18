@@ -6,13 +6,16 @@ DIR="$HOME/.config/i3"
 CONFIG="$DIR/kitty/kitty.conf"
 
 if [ "$1" == "--float" ]; then
-	kitty --class 'kitty-float' --config "$CONFIG"
+	shift
+	kitty --class 'kitty-float' --config "$CONFIG" "$@"
 elif [ "$1" == "--full" ]; then
+	shift
 	kitty --class 'kitty-fullscreen' --config "$CONFIG" \
 		  --start-as fullscreen \
 		  --override 'window_padding_width=30' \
 		  --override 'font_size=14' \
-		  --override 'background_opacity=0.95'
+		  --override 'background_opacity=0.95' \
+		  "$@"
 else
-	kitty --config "$CONFIG" ${@}
+	kitty --config "$CONFIG" "$@"
 fi

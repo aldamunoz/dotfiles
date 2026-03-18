@@ -3,7 +3,7 @@
 ##
 ## i3 Autostart Script (WM-only, DE-agnostic)
 
-set -e
+set -u
 
 # i3 config directory
 idir="$HOME/.config/i3"
@@ -69,7 +69,9 @@ if command_exists gnome-keyring-daemon; then
 fi
 
 # Make keyring visible to apps
-dbus-update-activation-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP
+if command_exists dbus-update-activation-environment; then
+  dbus-update-activation-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP
+fi
 
 # --------------------------------------------------
 # Polkit agent
@@ -84,8 +86,9 @@ start_once \
 # --------------------------------------------------
 
 if command_exists ksuperkey; then
-  start_once ksuperkey ksuperkey -e 'Super_L=Alt_L|F1'
-  start_once ksuperkey ksuperkey -e 'Super_R=Alt_L|F1'
+  # We intentionally start two instances so both Super keys are mapped.
+  ksuperkey -e 'Super_L=Alt_L|F1' &
+  ksuperkey -e 'Super_R=Alt_L|F1' &
 fi
 
 # --------------------------------------------------
@@ -104,7 +107,7 @@ fi
 
 # Launch dunst daemon
 if command_exists dunst; then
-  start_once dunst &
+  start_once dunst dunst
 fi
 # --------------------------------------------------
 # Notifications, bar, compositor
@@ -120,7 +123,7 @@ done
 # --------------------------------------------------
 
 if command_exists xss-lock && command_exists betterlockscreen; then
-  xss-lock -- betterlockscreen -l &
+  xss-lock --transfer-sleep-lock -- ~/.config/i3/scripts/lock_and_suspend &
   echo "xss-lock + betterlockscreen enabled."
 fi
 

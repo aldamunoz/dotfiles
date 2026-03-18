@@ -10,11 +10,28 @@ POWER_OFF=$(grep 'ALTFOREGROUND' <"$CDIR"/colors.ini | head -n1 | cut -d '=' -f2
 
 # Checks if bluetooth controller is powered on
 power_on() {
-  if bluetoothctl show | grep -q "Powered: yes"; then
+  local state_file
+
+  # Default-controller check first.
+  if bluetoothctl show 2>/dev/null | grep -q "Powered: yes"; then
     return 0
-  else
+  fi
+
+  # If no controller exists, bluetooth is effectively off.
+  if ! compgen -G "/sys/class/bluetooth/hci*" >/dev/null; then
     return 1
   fi
+
+  # Fallback: if any controller rfkill state is 1, treat as powered on.
+  for state_file in /sys/class/bluetooth/hci*/rfkill*/state; do
+    [[ -r "$state_file" ]] || continue
+    if [[ "$(cat "$state_file" 2>/dev/null)" == "1" ]]; then
+      return 0
+    fi
+  done
+
+  # Last fallback: controller exists but bluetoothctl/rfkill info is unavailable.
+  return 0
 }
 
 # Checks if a device is connected
@@ -27,28 +44,62 @@ device_connected() {
   fi
 }
 
+connected_devices() {
+  local paired_devices_cmd
+  local device
+  local seen=""
+  local known_path
+  local mac
+
+  add_unique_device() {
+    local addr="$1"
+    [[ -n "$addr" ]] || return 0
+    case " $seen " in
+    *" $addr "*) ;;
+    *)
+      devices+=("$addr")
+      seen="$seen $addr"
+      ;;
+    esac
+  }
+
+  while read -r device; do
+    add_unique_device "$device"
+  done < <(bluetoothctl devices Connected 2>/dev/null | awk '/^Device /{print $2}')
+
+  paired_devices_cmd="devices Paired"
+  if ! bluetoothctl "$paired_devices_cmd" >/dev/null 2>&1; then
+    paired_devices_cmd="paired-devices"
+  fi
+
+  while read -r device; do
+    [[ -n "$device" ]] || continue
+    if device_connected "$device"; then
+      add_unique_device "$device"
+    fi
+  done < <(bluetoothctl "$paired_devices_cmd" 2>/dev/null | awk '/^Device /{print $2}')
+
+  # Fallback for environments where bluetoothctl listing is flaky after updates.
+  if [[ ${#devices[@]} -eq 0 ]]; then
+    while read -r known_path; do
+      mac="$(basename "$known_path")"
+      if [[ "$mac" =~ ^([0-9A-F]{2}:){5}[0-9A-F]{2}$ ]] && device_connected "$mac"; then
+        add_unique_device "$mac"
+      fi
+    done < <(find /var/lib/bluetooth -mindepth 2 -maxdepth 2 -type d 2>/dev/null)
+  fi
+}
+
 # Prints a short string with the current bluetooth status
 # Useful for status bars like polybar, etc.
 print_status() {
   if power_on; then
-    if [[ -z $(bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-) ]]; then
-      echo "%{F$POWER_ON}%{T2}%{T-} %{F-}On"
-    fi
-
-    paired_devices_cmd="devices Paired"
-    # Check if an outdated version of bluetoothctl is used to preserve backwards compatibility
-    bt_version=$(bluetoothctl version 2>/dev/null | awk '{print $2}' | head -n1)
-    if [ -n "$bt_version" ] && echo "$bt_version < 5.65" | bc -l 2>/dev/null | grep -q 1; then
-      paired_devices_cmd="paired-devices"
-    else
-      paired_devices_cmd="devices Paired"
-    fi
-
-    mapfile -t paired_devices < <(bluetoothctl $paired_devices_cmd | grep Device | cut -d ' ' -f 2)
+    local -a devices=()
+    connected_devices
     counter=0
     icons=""
 
-    for device in "${paired_devices[@]}"; do
+    for device in "${devices[@]}"; do
       if device_connected "$device"; then
         device_alias=$(bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-)
         device_type=$(bluetoothctl info "$device" | grep "Icon" | cut -d ' ' -f 2-)
@@ -88,6 +139,8 @@ print_status() {
       echo "%{F$POWER_ON}%{T2}%{T-} %{F-}$icons"
     elif [[ $counter -gt 0 ]]; then
       echo "%{F$POWER_ON}%{T2}%{T-} %{F-}$icons | $device_alias"
+    else
+      echo "%{F$POWER_ON}%{T2}%{T-} %{F-}On"
     fi
   else
     echo "%{F$POWER_OFF}%{T2}%{T-} Off%{F-}"

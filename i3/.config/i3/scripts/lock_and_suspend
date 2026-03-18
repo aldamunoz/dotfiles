@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Lock immediately
+betterlockscreen -l
+
+# # Delay (seconds)
+# DELAY=120 # 2 minutes
+#
+# # If user unlocks before delay, cancel suspend
+# sleep "$DELAY"
+#
+# # Only suspend if still locked
+# if loginctl show-session "$XDG_SESSION_ID" -p LockedHint | grep -q yes; then
+#   systemctl suspend
+# fi

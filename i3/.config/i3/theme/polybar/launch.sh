@@ -1,43 +1,59 @@
 #!/usr/bin/env bash
 
+set -u
+
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-CARD="$(light -L | grep 'backlight' | head -n1 | cut -d'/' -f3)"
-INTERFACE="$(ip link | awk '/state UP/ {print $2}' | tr -d :)"
-BAT="$(acpi -b)"
-RFILE="$DIR/.module"
 
-# Fix backlight and network modules
-fix_modules() {
-  if [[ -z "$CARD" ]]; then
-    sed -i -e 's/backlight/bna/g' "$DIR"/config.ini
-  elif [[ "$CARD" != *"intel_"* ]]; then
-    sed -i -e 's/backlight/brightness/g' "$DIR"/config.ini
+detect_network_module() {
+  local iface
+  iface="$(ip route get 1.1.1.1 2>/dev/null | awk '/dev /{for(i=1;i<=NF;i++) if($i=="dev"){print $(i+1); exit}}')"
+
+  if [[ -z "${iface}" ]]; then
+    iface="$(ip -o link show up 2>/dev/null | awk -F': ' '!/ lo: /{print $2; exit}')"
   fi
 
-  if [[ -z "$BAT" ]]; then
-    sed -i -e 's/battery/btna/g' "$DIR"/config.ini
+  if [[ -z "${iface}" ]]; then
+    iface="$(ip -o link show 2>/dev/null | awk -F': ' '!/ lo: /{print $2; exit}')"
   fi
 
-  if [[ "$INTERFACE" == e* ]]; then
-    sed -i -e 's/network/ethernet/g' "$DIR"/config.ini
+  if [[ -z "${iface}" ]]; then
+    for candidate in /sys/class/net/*; do
+      candidate="${candidate##*/}"
+      [[ "${candidate}" == "lo" ]] && continue
+      iface="${candidate}"
+      break
+    done
+  fi
+
+  POLYBAR_NET_IFACE="${iface:-}"
+
+  if [[ -n "${iface}" && -d "/sys/class/net/${iface}/wireless" ]]; then
+    echo "network"
+  else
+    echo "ethernet"
   fi
 }
-# Launch the bar
+
+detect_primary_monitor() {
+  xrandr --query | awk '/ connected primary /{print $1; exit}'
+}
+
 launch_bar() {
-  # Terminate already running bar instances
-  killall -q polybar
+  export POLYBAR_NETWORK_MODULE
+  export POLYBAR_NET_IFACE
+  POLYBAR_NETWORK_MODULE="$(detect_network_module)"
 
-  # Wait until the processes have been shut down
-  while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
-  # Get the primary monitor
-  PRIMARY_MONITOR=$(xrandr --listmonitors | awk '$2 == "+*"{print $4}')
-  # Launch Polybar only on the primary monitor
-  MONITOR=$PRIMARY_MONITOR polybar -q main -c "$DIR"/config.ini &
+  killall -q polybar
+  while pgrep -u "$UID" -x polybar >/dev/null; do sleep 1; done
+
+  local primary_monitor
+  primary_monitor="$(detect_primary_monitor)"
+
+  if [[ -n "${primary_monitor}" ]]; then
+    MONITOR="${primary_monitor}" polybar -q main -c "$DIR"/config.ini &
+  else
+    polybar -q main -c "$DIR"/config.ini &
+  fi
 }
 
-# Execute functions
-if [[ ! -f "$RFILE" ]]; then
-  fix_modules
-  touch "$RFILE"
-fi
 launch_bar
