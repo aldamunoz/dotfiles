@@ -73,6 +73,12 @@ if command_exists dbus-update-activation-environment; then
 fi
 
 # --------------------------------------------------
+# XSETTINGS daemon
+# --------------------------------------------------
+
+start_once xsettingsd xsettingsd
+
+# --------------------------------------------------
 # Polkit agent
 # --------------------------------------------------
 
