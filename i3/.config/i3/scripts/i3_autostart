@@ -46,6 +46,7 @@ processes_to_kill=(
   ksuperkey
   polkit-gnome-authentication-agent-1
   xss-lock
+  idle_inhibit
   dunst
 )
 
@@ -124,12 +125,26 @@ for script in i3_bar i3_comp; do
 done
 
 # --------------------------------------------------
-# Lock screen on suspend
+# Fullscreen idle inhibitor
 # --------------------------------------------------
+
+start_once idle_inhibit "$idir/scripts/idle_inhibit"
+
+# --------------------------------------------------
+# Screen idle, lock, and suspend
+# --------------------------------------------------
+#
+# Flow: 5 min idle → xss-lock fires lock_and_suspend
+#       lock_and_suspend locks screen, then suspends after 60 s if still locked
+# Lid close / manual suspend also triggers the lock via --transfer-sleep-lock.
+
+xset s 300 300
+xset s noblank
+xset dpms 0 0 360
 
 if command_exists xss-lock && command_exists betterlockscreen; then
   xss-lock --transfer-sleep-lock -- ~/.config/i3/scripts/lock_and_suspend &
-  echo "xss-lock + betterlockscreen enabled."
+  echo "xss-lock started."
 fi
 
 echo "i3 environment setup complete."

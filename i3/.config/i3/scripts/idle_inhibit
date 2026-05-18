@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Prevent screensaver / autolock while a fullscreen window is active.
+# Polls every 30 s — safe margin before the 5-min idle trigger.
+
+while true; do
+  sleep 30
+  wid=$(xdotool getactivewindow 2>/dev/null) || continue
+  xprop -id "$wid" _NET_WM_STATE 2>/dev/null \
+    | grep -q "_NET_WM_STATE_FULLSCREEN" \
+    && xset s reset
+done

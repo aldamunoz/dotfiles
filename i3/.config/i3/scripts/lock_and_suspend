@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 
-# Lock immediately
+# Lock the screen, then suspend after SUSPEND_DELAY seconds if still locked.
+# Pressing keys / moving the mouse on the lock screen resets nothing here,
+# but unlocking cancels the suspend.
+
+SUSPEND_DELAY=60
+
 betterlockscreen -l
 
-# # Delay (seconds)
-# DELAY=120 # 2 minutes
-#
-# # If user unlocks before delay, cancel suspend
-# sleep "$DELAY"
-#
-# # Only suspend if still locked
-# if loginctl show-session "$XDG_SESSION_ID" -p LockedHint | grep -q yes; then
-#   systemctl suspend
-# fi
+elapsed=0
+while [ "$elapsed" -lt "$SUSPEND_DELAY" ]; do
+  sleep 5
+  elapsed=$((elapsed + 5))
+  pgrep -x i3lock > /dev/null || exit 0
+done
+
+systemctl suspend

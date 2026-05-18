@@ -20,20 +20,21 @@ done
 # -----------------------------
 BASE_PKGS=(
   i3-wm i3lock xorg-server xorg-xinit
-  dunst picom feh
-  polkit-gnome
   stow
-  iwd
-  polybar
-  rofi
-  kitty
-  betterlockscreen
-  xss-lock
-  mpd
-  ncmpcpp
-  pipewire
-  pipewire-pulse
-  wireplumber
+  dunst picom
+  polybar rofi kitty
+  betterlockscreen xss-lock
+  xorg-xset xsettingsd
+  polkit-gnome
+  xorg-xrandr xorg-xsetroot xorg-xprop xorg-xinput
+  xdotool xclip maim slop
+  xwallpaper feh
+  mpd ncmpcpp
+  pipewire pipewire-pulse wireplumber
+  networkmanager network-manager-applet python-gobject
+  bluez bluez-utils
+  pulsemixer
+  jq curl wget bc
 )
 
 LAPTOP_PKGS=(
@@ -61,8 +62,6 @@ install_pkgs() {
 # Base install
 # -----------------------------
 install_pkgs "${BASE_PKGS[@]}"
-install_pkgs "${DESKTOP_PKGS[@]}"
-install_pkgs "${AUDIO_PKGS[@]}"
 install_pkgs "${DEV_PKGS[@]}"
 
 # -----------------------------
@@ -82,4 +81,4 @@ systemctl --user enable wireplumber.service
 
 echo "==> Done."
 echo "Next steps:"
-echo "  stow i3 polybar mpd ncmpcpp kitty"
+echo "  stow dunst gtk i3 kitty mpd ncmpcpp nvim"
