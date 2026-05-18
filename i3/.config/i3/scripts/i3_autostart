@@ -44,7 +44,6 @@ start_once() {
 processes_to_kill=(
   xsettingsd
   ksuperkey
-  xfce-polkit
   polkit-gnome-authentication-agent-1
   xss-lock
   dunst
