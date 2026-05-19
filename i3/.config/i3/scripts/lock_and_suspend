@@ -1,18 +1,28 @@
 #!/usr/bin/env bash
 
-# Lock the screen, then suspend after SUSPEND_DELAY seconds if still locked.
-# Pressing keys / moving the mouse on the lock screen resets nothing here,
-# but unlocking cancels the suspend.
-
 SUSPEND_DELAY=60
 
-betterlockscreen -l
+# Run locker in background so the polling loop can run concurrently
+betterlockscreen -l &
+LOCK_PID=$!
 
+# Wait for i3lock to actually grab the screen before releasing the sleep
+# inhibitor — prevents a brief unlocked window on lid-close / manual suspend
+timeout=10
+while ! pgrep -x i3lock > /dev/null && (( timeout-- > 0 )); do
+  sleep 0.5
+done
+
+# Release xss-lock's sleep inhibitor fd so the system can proceed with suspend
+# when this script was triggered by a sleep event (lid close, systemctl suspend)
+[[ -n "${XSS_SLEEP_LOCK_FD-}" ]] && exec {XSS_SLEEP_LOCK_FD}>&-
+
+# Auto-suspend: poll until unlocked or SUSPEND_DELAY elapses
 elapsed=0
-while [ "$elapsed" -lt "$SUSPEND_DELAY" ]; do
+while (( elapsed < SUSPEND_DELAY )); do
   sleep 5
-  elapsed=$((elapsed + 5))
-  pgrep -x i3lock > /dev/null || exit 0
+  (( elapsed += 5 ))
+  kill -0 "$LOCK_PID" 2>/dev/null || exit 0   # unlocked → cancel suspend
 done
 
 systemctl suspend
