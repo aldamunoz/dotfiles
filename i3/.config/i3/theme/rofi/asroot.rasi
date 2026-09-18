@@ -60,6 +60,8 @@ textbox-prompt-colon {
     border-radius:               12px;
     background-color:            @selected;
     text-color:                  @background;
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
 }
 prompt {
     enabled:                     true;

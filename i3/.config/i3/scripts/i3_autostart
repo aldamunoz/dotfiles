@@ -108,7 +108,7 @@ command_exists xsetroot && xsetroot -cursor_name left_ptr
 # --------------------------------------------------
 
 if command_exists xwallpaper; then
-  xwallpaper --zoom "$idir/wallpapers/endeavour.png"
+  xwallpaper --zoom "$idir/wallpapers/wk5pvtr.png"
 fi
 
 # Launch dunst daemon
@@ -134,11 +134,11 @@ start_once idle_inhibit "$idir/scripts/idle_inhibit"
 # Screen idle, lock, and suspend
 # --------------------------------------------------
 #
-# Flow: 5 min idle → xss-lock fires lock_and_suspend
-#       lock_and_suspend locks screen, then suspends after 60 s if still locked
+# Flow: 10 min idle → xss-lock fires lock_and_suspend
+#       lock_and_suspend locks screen, then suspends after 10 min if still locked
 # Lid close / manual suspend also triggers the lock via --transfer-sleep-lock.
 
-xset s 300 300
+xset s 600 600
 xset s noblank
 xset dpms 0 0 360
 

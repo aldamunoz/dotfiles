@@ -89,11 +89,11 @@ inputbar {
     enabled:                     true;
     spacing:                     10px;
     margin:                      0px;
-    padding:                     0px 0px 0px 0px;
+    padding:                     8px 10px;
     border:                      0px 0px 0px 0px;
-    border-radius:               0px;
+    border-radius:               14px;
     border-color:                @border-colour;
-    background-color:            transparent;
+    background-color:            @alternate-background;
     text-color:                  @foreground-colour;
     children:                    [ "textbox-prompt-colon", "entry" ];
 }
@@ -108,9 +108,11 @@ textbox-prompt-colon {
     padding:                     6px 9px;
     border-radius:               12px;
     expand:                      false;
-    str:                         "";
-    background-color:            @selected;
-    text-color:                  @background;
+    str:                         "";
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
 }
 entry {
     enabled:                     true;
@@ -118,7 +120,7 @@ entry {
     background-color:            inherit;
     text-color:                  inherit;
     cursor:                      text;
-    placeholder:                 "Filter...";
+    placeholder:                 "Start typing...";
     placeholder-color:           inherit;
 }
 num-filtered-rows {

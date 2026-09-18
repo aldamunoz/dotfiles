@@ -37,13 +37,6 @@ BASE_PKGS=(
   jq curl wget bc
 )
 
-LAPTOP_PKGS=(
-  upower
-  light
-  iwd
-  xfce4-power-manager
-)
-
 DEV_PKGS=(
   git
   neovim
@@ -63,14 +56,6 @@ install_pkgs() {
 # -----------------------------
 install_pkgs "${BASE_PKGS[@]}"
 install_pkgs "${DEV_PKGS[@]}"
-
-# -----------------------------
-# Laptop detection
-# -----------------------------
-if [[ -d /sys/class/power_supply/BAT0 ]]; then
-  echo "Laptop detected"
-  install_pkgs "${LAPTOP_PKGS[@]}"
-fi
 
 # -----------------------------
 # Enable services

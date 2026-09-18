@@ -59,6 +59,10 @@ confirm_cmd() {
 
 # Ask for confirmation
 confirm_exit() {
+  # Small delay so the previous rofi window fully releases its keyboard/pointer
+  # grab before this one opens; without it, this dialog can flash and vanish
+  # immediately if it fails to grab input.
+  sleep 0.15
   echo -e "$yes\n$no" | confirm_cmd
 }
 
@@ -83,7 +87,6 @@ run_cmd() {
     betterlockscreen --lock
   elif [[ "$1" == '--opt2' ]]; then
     confirm_run 'i3-msg exit'
-
   elif [[ "$1" == '--opt3' ]]; then
     confirm_run 'do_suspend'
   elif [[ "$1" == '--opt4' ]]; then

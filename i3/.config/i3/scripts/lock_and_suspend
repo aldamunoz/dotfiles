@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SUSPEND_DELAY=60
+SUSPEND_DELAY=600
 
 # Run locker in background so the polling loop can run concurrently
 betterlockscreen -l &
