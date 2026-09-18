@@ -114,6 +114,8 @@ textbox-prompt-colon {
     str:                         "";
     background-color:            @selected;
     text-color:                  @background;
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
 }
 entry {
     enabled:                     true;

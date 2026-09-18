@@ -55,11 +55,13 @@ inputbar {
 textbox-prompt-colon {
     enabled:                     true;
     expand:                      false;
-    str:                         "";
+    str:                         "";
     padding:                     6px 10px;
     border-radius:               12px;
     background-color:            @selected;
     text-color:                  @background;
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
 }
 prompt {
     enabled:                     true;
@@ -104,7 +106,7 @@ listview {
 /*****----- Elements -----*****/
 element {
     enabled:                     true;
-    padding:                     8px 12px;
+    padding:                     10px 12px;
     border:                      0px solid;
     border-radius:               14px;
     border-color:                @selected;

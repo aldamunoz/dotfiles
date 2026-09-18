@@ -111,9 +111,11 @@ textbox-prompt-colon {
     padding:                     6px 9px;
     border-radius:               12px;
     expand:                      false;
-    str:                         "直";
+    str:                         "";
     background-color:            @selected;
     text-color:                  @background;
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
 }
 entry {
     enabled:                     true;
@@ -121,7 +123,7 @@ entry {
     background-color:            inherit;
     text-color:                  inherit;
     cursor:                      text;
-    placeholder:                 "...";
+    placeholder:                 "Start typing...";
     placeholder-color:           inherit;
 }
 num-filtered-rows {
