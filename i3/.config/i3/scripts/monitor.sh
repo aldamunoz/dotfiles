@@ -14,39 +14,18 @@ fi
 
 mapfile -t CONNECTED_OUTPUTS < <(xrandr --query | awk '/ connected/{print $1}')
 
-LAPTOP_SCREEN=""
-EXTERNAL_MONITORS=()
+echo "Detected monitors: ${CONNECTED_OUTPUTS[*]:-none}"
 
-for output in "${CONNECTED_OUTPUTS[@]}"; do
-  if [[ "$output" == eDP* || "$output" == LVDS* || "$output" == DSI* ]]; then
-    LAPTOP_SCREEN="$output"
-  else
-    EXTERNAL_MONITORS+=("$output")
-  fi
-done
+if [[ "${#CONNECTED_OUTPUTS[@]}" -gt 0 ]]; then
+  PRIMARY_MONITOR="${CONNECTED_OUTPUTS[0]}"
+  echo "Configuring monitors; primary: $PRIMARY_MONITOR"
 
-echo "Detected laptop screen: ${LAPTOP_SCREEN:-none}"
-echo "Detected external monitors: ${EXTERNAL_MONITORS[*]:-none}"
-
-if [[ "${#EXTERNAL_MONITORS[@]}" -gt 0 ]]; then
-  PRIMARY_MONITOR="${EXTERNAL_MONITORS[0]}"
-  echo "Configuring external monitors; primary: $PRIMARY_MONITOR"
-
-  for monitor in "${EXTERNAL_MONITORS[@]}"; do
+  for monitor in "${CONNECTED_OUTPUTS[@]}"; do
     xrandr --output "$monitor" --auto
   done
   xrandr --output "$PRIMARY_MONITOR" --primary
-
-  if [[ -n "$LAPTOP_SCREEN" ]]; then
-    xrandr --output "$LAPTOP_SCREEN" --off
-  fi
 else
-  echo "No external monitor detected."
-  if [[ -n "$LAPTOP_SCREEN" ]]; then
-    xrandr --output "$LAPTOP_SCREEN" --auto --primary
-  else
-    echo "No laptop panel detected either; nothing to configure."
-  fi
+  echo "No monitor detected; nothing to configure."
 fi
 
 echo "Monitor setup completed at $(date)"

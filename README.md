@@ -10,7 +10,7 @@ Personal desktop setup for Arch Linux based on i3, polybar, rofi, kitty, mpd, an
 - screenshot workflow (keybindings + rofi integration)
 - mpd/ncmpcpp setup
 - kitty, dunst, nvim configs
-- laptop/desktop-aware monitor and autostart scripts
+- multi-monitor-aware monitor and autostart scripts
 
 ## Repository Layout
 
@@ -40,10 +40,10 @@ sudo pacman -S --needed \
   mpd ncmpcpp pipewire pipewire-pulse wireplumber \
   xorg-xrandr xorg-xsetroot xorg-xprop xorg-xinput \
   xdotool xclip maim slop \
-  light xorg-xbacklight pulsemixer \
+  pulsemixer \
   networkmanager network-manager-applet python-gobject \
   bluez bluez-utils \
-  xwallpaper feh acpi upower \
+  xwallpaper feh \
   jq curl wget bc
 ```
 
