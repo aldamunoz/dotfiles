@@ -11,6 +11,7 @@ Personal desktop setup for Arch Linux based on i3, polybar, rofi, kitty, mpd, an
 - mpd/ncmpcpp setup
 - kitty, dunst, nvim configs
 - multi-monitor-aware monitor and autostart scripts
+- LightDM login screen (theme, background, avatar) under `lightdm/`
 
 ## Repository Layout
 
@@ -19,6 +20,7 @@ Personal desktop setup for Arch Linux based on i3, polybar, rofi, kitty, mpd, an
 ├── dunst/
 ├── i3/
 ├── kitty/
+├── lightdm/
 ├── mpd/
 ├── ncmpcpp/
 ├── nvim/
@@ -37,6 +39,7 @@ sudo pacman -S --needed \
   i3-wm i3lock xorg-server xorg-xinit \
   stow dunst picom polybar rofi kitty \
   betterlockscreen xss-lock polkit-gnome \
+  lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings accountsservice \
   mpd ncmpcpp pipewire pipewire-pulse wireplumber \
   xorg-xrandr xorg-xsetroot xorg-xprop xorg-xinput \
   xdotool xclip maim slop \
@@ -66,19 +69,27 @@ git clone https://github.com/aldamunoz/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ```
 
-2. Stow packages:
+2. Stow user packages:
 
 ```bash
 stow -t ~ dunst i3 kitty mpd ncmpcpp nvim
 ```
 
-3. Enable user services:
+3. Stow the LightDM package (rooted at `/` instead of `$HOME`, since it lives
+   under `/etc` and `/var/lib`) and install the avatar/background:
+
+```bash
+sudo stow -t / -d ~/dotfiles lightdm
+sudo ~/dotfiles/lightdm/setup.sh
+```
+
+4. Enable user services:
 
 ```bash
 systemctl --user enable --now mpd pipewire wireplumber
 ```
 
-4. Enable system services:
+5. Enable system services:
 
 ```bash
 sudo systemctl enable --now NetworkManager bluetooth

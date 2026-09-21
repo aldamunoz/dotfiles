@@ -26,6 +26,7 @@ BASE_PKGS=(
   betterlockscreen xss-lock
   xorg-xset xsettingsd
   polkit-gnome
+  lightdm lightdm-gtk-greeter lightdm-gtk-greeter-settings accountsservice
   xorg-xrandr xorg-xsetroot xorg-xprop xorg-xinput
   xdotool xclip maim slop
   xwallpaper feh
@@ -63,7 +64,9 @@ install_pkgs "${DEV_PKGS[@]}"
 systemctl --user enable mpd.service
 systemctl --user enable pipewire.service
 systemctl --user enable wireplumber.service
+sudo systemctl enable lightdm.service
 
 echo "==> Done."
 echo "Next steps:"
 echo "  stow dunst gtk i3 kitty mpd ncmpcpp nvim"
+echo "  sudo stow -t / -d ~/dotfiles lightdm && sudo ~/dotfiles/lightdm/setup.sh"
