@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Wallpaper picker: shows a thumbnail grid of everything in
+# theme/../wallpapers/, applies the pick immediately via xwallpaper, and
+# remembers it (outside the dotfiles repo - it's runtime state, not
+# config) so i3_autostart restores it on the next login/reload.
+
+DIR="$HOME/.config/i3"
+RASI="$DIR/theme/rofi/wallpaper.rasi"
+WALLDIR="$DIR/wallpapers"
+STATE="$HOME/.cache/i3/wallpaper"
+
+declare -A wallpaper_map
+entries=""
+for f in "$WALLDIR"/*; do
+    [[ -f "$f" ]] || continue
+    name="$(basename "$f")"
+    wallpaper_map["$name"]="$f"
+    entries+="${name}\0icon\x1f${f}\n"
+done
+
+selected="$(echo -en "$entries" | rofi -dmenu -show-icons -theme "$RASI" -p "Wallpaper")"
+[[ -z "$selected" ]] && exit 0
+
+chosen="${wallpaper_map[$selected]}"
+[[ -z "$chosen" ]] && exit 1
+
+xwallpaper --zoom "$chosen"
+mkdir -p "$(dirname "$STATE")"
+echo "$chosen" > "$STATE"
+dunstify -u low -h string:x-dunst-stack-tag:wallpaper "Wallpaper changed" "$selected"

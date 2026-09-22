@@ -63,7 +63,7 @@ Flat directory of standalone bash scripts: polybar module data sources (`cpu_usa
 - `polybar/` — bar config split into `config.ini` (bar geometry), `colors.ini`, `decor.ini` (separators/borders), `modules.ini` (module definitions), launched via `launch.sh`
 - `rofi/` — one `.rasi` per menu (launcher, powermenu, bluetooth, screenshot, networkmenu, windows, music, askpass, asroot, confirm, keyhint), sharing `shared/colors.rasi` and `shared/fonts.rasi`
 - `system.ini` — machine-specific network interface name; regenerate using the command documented inside the file, not by guessing values
-- Wallpapers live in `i3/.config/i3/wallpapers/`; the active one is set by `xwallpaper --zoom` in `i3_autostart`
+- Wallpapers live in `i3/.config/i3/wallpapers/`; the active one is set by `xwallpaper --zoom` in `i3_autostart`. `rofi_wallpaper` (`Mod+Shift+p`) shows them as a thumbnail grid via rofi's icon protocol, applies the pick immediately, and remembers it in `~/.cache/i3/wallpaper` (runtime state, deliberately not tracked in git) - `i3_autostart` reads that file on startup, falling back to the hardcoded default if it doesn't exist yet
 
 ### LightDM (`lightdm/`)
 Rooted at `/`, not `$HOME` (see Overview). `etc/lightdm/lightdm-gtk-greeter.conf` sets theme/icon-theme to match the desktop's `gtk-application-prefer-dark-theme` (see `gtk/`), plus the login background. `var/lib/AccountsService/users/patricio` points AccountsService at the avatar. The avatar image and background image themselves aren't stowed - they're binary files copied into system paths at setup time by `lightdm/setup.sh` (source: `~/.face` and an existing wallpaper from `i3/.config/i3/wallpapers/`), since duplicating them into git would bloat the repo.

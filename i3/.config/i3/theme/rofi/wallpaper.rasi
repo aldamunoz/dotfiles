@@ -1,0 +1,176 @@
+
+/*****----- Global Properties -----*****/
+@import                          "shared/colors.rasi"
+@import                          "shared/fonts.rasi"
+
+* {
+    border-colour:               var(selected);
+    handle-colour:               var(selected);
+    background-colour:           var(background);
+    foreground-colour:           var(foreground);
+    alternate-background:        var(background-alt);
+    normal-background:           var(background);
+    normal-foreground:           var(foreground);
+    selected-normal-background:  var(selected);
+    selected-normal-foreground:  var(background);
+    alternate-normal-background: var(background);
+    alternate-normal-foreground: var(foreground);
+}
+
+/*****----- Main Window -----*****/
+window {
+    transparency:                "real";
+    location:                    center;
+    anchor:                      center;
+    fullscreen:                  false;
+    width:                       980px;
+    x-offset:                    0px;
+    y-offset:                    0px;
+
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     0px;
+    border:                      2px solid;
+    border-radius:               20px;
+    border-color:                @border-colour;
+    cursor:                      "default";
+    background-color:            @background-colour;
+}
+
+/*****----- Main Box -----*****/
+mainbox {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     20px;
+    border:                      0px solid;
+    background-color:            transparent;
+    children:                    [ "inputbar", "message", "listview" ];
+}
+
+/*****----- Inputbar -----*****/
+inputbar {
+    enabled:                     true;
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     8px 10px;
+    border-radius:               14px;
+    background-color:            @alternate-background;
+    text-color:                  @foreground-colour;
+    children:                    [ "textbox-prompt-colon", "entry" ];
+}
+prompt {
+    enabled:                     true;
+    background-color:            inherit;
+    text-color:                  inherit;
+}
+textbox-prompt-colon {
+    enabled:                     true;
+    padding:                     6px 6px;
+    border-radius:               12px;
+    expand:                      false;
+    str:                         "";
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    horizontal-align:            0.5;
+    vertical-align:              0.5;
+}
+entry {
+    enabled:                     true;
+    padding:                     6px 0px;
+    background-color:            inherit;
+    text-color:                  inherit;
+    cursor:                      text;
+    placeholder:                 "Wallpaper...";
+    placeholder-color:           inherit;
+}
+
+/*****----- Listview: thumbnail grid -----*****/
+listview {
+    enabled:                     true;
+    columns:                     4;
+    lines:                       2;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   true;
+    layout:                      vertical;
+    fixed-height:                true;
+    fixed-columns:               true;
+
+    spacing:                     10px;
+    margin:                      0px;
+    padding:                     0px;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    cursor:                      "default";
+}
+scrollbar {
+    handle-width:                5px;
+    handle-color:                @handle-colour;
+    border-radius:               0px;
+    background-color:            @alternate-background;
+}
+
+/*****----- Elements: icon on top, name below -----*****/
+element {
+    enabled:                     true;
+    orientation:                 vertical;
+    spacing:                     6px;
+    margin:                      0px;
+    padding:                     8px;
+    border-radius:               14px;
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    cursor:                      pointer;
+}
+element normal.normal {
+    background-color:            var(normal-background);
+    text-color:                  var(normal-foreground);
+}
+element selected.normal {
+    background-color:            var(selected-normal-background);
+    text-color:                  var(selected-normal-foreground);
+}
+element alternate.normal {
+    background-color:            var(alternate-normal-background);
+    text-color:                  var(alternate-normal-foreground);
+}
+element-icon {
+    background-color:            transparent;
+    text-color:                  inherit;
+    size:                        180px;
+    border-radius:                8px;
+    cursor:                      inherit;
+}
+element-text {
+    background-color:            transparent;
+    text-color:                  inherit;
+    highlight:                   inherit;
+    cursor:                      inherit;
+    vertical-align:              0.5;
+    horizontal-align:            0.5;
+}
+
+/*****----- Message -----*****/
+message {
+    enabled:                     true;
+    margin:                      0px;
+    padding:                     6px 10px;
+    border-radius:               14px;
+    background-color:            @alternate-background;
+    text-color:                  @foreground-colour;
+}
+textbox {
+    background-color:            transparent;
+    text-color:                  @foreground-colour;
+    vertical-align:              0.5;
+    horizontal-align:            0.0;
+    placeholder-color:           @foreground-colour;
+    blink:                       true;
+    markup:                      true;
+}
+error-message {
+    padding:                     20px;
+    background-color:            @background-colour;
+    text-color:                  @foreground-colour;
+}

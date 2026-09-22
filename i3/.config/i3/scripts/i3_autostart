@@ -108,7 +108,13 @@ command_exists xsetroot && xsetroot -cursor_name left_ptr
 # --------------------------------------------------
 
 if command_exists xwallpaper; then
-  xwallpaper --zoom "$idir/wallpapers/wk5pvtr.png"
+  wallpaper_state="$HOME/.cache/i3/wallpaper"
+  wallpaper="$idir/wallpapers/wk5pvtr.png"
+  if [[ -f "$wallpaper_state" ]]; then
+    saved="$(<"$wallpaper_state")"
+    [[ -f "$saved" ]] && wallpaper="$saved"
+  fi
+  xwallpaper --zoom "$wallpaper"
 fi
 
 # Launch dunst daemon
