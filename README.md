@@ -97,6 +97,7 @@ sudo systemctl enable --now NetworkManager bluetooth
 
 ## Daily Usage
 
+- Keybindings cheatsheet: `Mod+k`
 - Reload i3 config: `Mod+Shift+c`
 - Restart i3 inplace: `Ctrl+Shift+r`
 - Screenshot menu: `Mod+s`

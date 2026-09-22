@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# Searchable keybindings cheatsheet, built from a "# hint: <description>"
+# comment on its own line directly above a bindsym line in
+# config.d/02_keybindings.conf. Must be a leading comment, not trailing -
+# i3 only treats "#" as a comment when it's the first character of the
+# line, so a trailing "bindsym ... kill  # hint: ..." gets parsed as part
+# of the command itself and breaks strict-grammar commands like kill/exit.
+
+DIR="$HOME/.config/i3"
+RASI="$DIR/theme/rofi/keyhint.rasi"
+KEYBINDINGS="$DIR/config.d/02_keybindings.conf"
+
+mod_name=$(sed -nre 's/^set \$MOD (.*)/\1/p' "$DIR/config")
+alt_name=$(sed -nre 's/^set \$ALT (.*)/\1/p' "$DIR/config")
+mod_name=${mod_name:-Mod4}
+alt_name=${alt_name:-Mod1}
+
+format_keys() {
+    local keys="$1"
+    keys=${keys//\$MOD/SUPER}
+    keys=${keys//\$ALT/ALT}
+    keys=${keys//$mod_name/SUPER}
+    keys=${keys//$alt_name/ALT}
+    # "SUPER SHIFT + KEY" - space between modifiers, "+" only before the last key
+    IFS='+' read -ra parts <<<"$keys"
+    local last="${parts[-1]}"
+    unset 'parts[-1]'
+    if [[ ${#parts[@]} -gt 0 ]]; then
+        keys="${parts[*]} + $last"
+    else
+        keys="$last"
+    fi
+    echo "${keys^^}"
+}
+
+entries=()
+while IFS=$'\t' read -r desc bindsym_line; do
+    keys="$(sed -E 's/^\s*bindsym\s+(\S+).*/\1/' <<<"$bindsym_line")"
+    keys="$(format_keys "$keys")"
+    entries+=("$(printf '%-28s <span foreground="#5c6370">→</span> %s' "$keys" "$desc")")
+done < <(awk '
+    /^[ \t]*# hint:/ && pending != "" { pending = "" }
+    pending != "" && /^[ \t]*bindsym/ { print pending "\t" $0; pending = "" }
+    /^[ \t]*# hint:/ {
+        pending = $0
+        sub(/^[ \t]*# hint:[ \t]*/, "", pending)
+    }
+' "$KEYBINDINGS")
+
+printf '%s\n' "${entries[@]}" | rofi -dmenu -i -markup-rows -p "Keybindings" -theme "$RASI"

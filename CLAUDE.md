@@ -43,7 +43,7 @@ polybar -q main -c ~/.config/i3/theme/polybar/config.ini -l trace 2>&1 | tee /tm
 ### i3 config composition
 `i3/.config/i3/config` is the entry point and only does two things: `include ~/.config/i3/config.d/*.conf` and define autostart `exec_always` lines. All actual configuration lives in numbered files under `config.d/`, loaded in lexical order:
 - `01_theme.conf` — fonts, borders, gaps, color variables (`$i3_*`) referenced elsewhere
-- `02_keybindings.conf` — keybindings
+- `02_keybindings.conf` — keybindings. A `bindsym` line followed by `  # hint: <description>` shows up in the `rofi_keyhint` cheatsheet (`Mod+k`) - tag new bindings this way if they're worth surfacing there; it's a curated list, not every binding needs one
 - `03_mousebindings.conf` — mouse bindings
 - `04_modes.conf` — i3 modes (e.g. Resize)
 - `05_rules.conf` — workspace/window assignment rules
@@ -61,7 +61,7 @@ Flat directory of standalone bash scripts: polybar module data sources (`cpu_usa
 
 ### Theming (`i3/.config/i3/theme/`)
 - `polybar/` — bar config split into `config.ini` (bar geometry), `colors.ini`, `decor.ini` (separators/borders), `modules.ini` (module definitions), launched via `launch.sh`
-- `rofi/` — one `.rasi` per menu (launcher, powermenu, bluetooth, screenshot, networkmenu, windows, music, askpass, asroot, confirm), sharing `shared/colors.rasi` and `shared/fonts.rasi`
+- `rofi/` — one `.rasi` per menu (launcher, powermenu, bluetooth, screenshot, networkmenu, windows, music, askpass, asroot, confirm, keyhint), sharing `shared/colors.rasi` and `shared/fonts.rasi`
 - `system.ini` — machine-specific network interface name; regenerate using the command documented inside the file, not by guessing values
 - Wallpapers live in `i3/.config/i3/wallpapers/`; the active one is set by `xwallpaper --zoom` in `i3_autostart`
 
