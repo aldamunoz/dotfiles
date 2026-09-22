@@ -30,6 +30,7 @@ BASE_PKGS=(
   xorg-xrandr xorg-xsetroot xorg-xprop xorg-xinput
   xdotool xclip maim slop
   xwallpaper feh
+  fastfetch
   mpd ncmpcpp
   pipewire pipewire-pulse wireplumber
   networkmanager network-manager-applet python-gobject
@@ -68,5 +69,5 @@ sudo systemctl enable lightdm.service
 
 echo "==> Done."
 echo "Next steps:"
-echo "  stow dunst gtk i3 kitty mpd ncmpcpp nvim"
+echo "  stow dunst fastfetch gtk i3 kitty mpd ncmpcpp nvim"
 echo "  sudo stow -t / -d ~/dotfiles lightdm && sudo ~/dotfiles/lightdm/setup.sh"

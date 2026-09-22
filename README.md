@@ -12,12 +12,14 @@ Personal desktop setup for Arch Linux based on i3, polybar, rofi, kitty, mpd, an
 - kitty, dunst, nvim configs
 - multi-monitor-aware monitor and autostart scripts
 - LightDM login screen (theme, background, avatar) under `lightdm/`
+- fastfetch, themed to match the rofi/i3 accent color
 
 ## Repository Layout
 
 ```text
 .
 ├── dunst/
+├── fastfetch/
 ├── i3/
 ├── kitty/
 ├── lightdm/
@@ -47,6 +49,7 @@ sudo pacman -S --needed \
   networkmanager network-manager-applet python-gobject \
   bluez bluez-utils \
   xwallpaper feh \
+  fastfetch \
   jq curl wget bc
 ```
 
@@ -72,7 +75,7 @@ cd ~/dotfiles
 2. Stow user packages:
 
 ```bash
-stow -t ~ dunst i3 kitty mpd ncmpcpp nvim
+stow -t ~ dunst fastfetch i3 kitty mpd ncmpcpp nvim
 ```
 
 3. Stow the LightDM package (rooted at `/` instead of `$HOME`, since it lives

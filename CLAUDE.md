@@ -10,7 +10,7 @@ Personal Arch Linux desktop dotfiles for an i3 + X11 setup, managed with GNU Sto
 
 Install/stow user packages (run from repo root):
 ```bash
-stow -t ~ dunst gtk i3 kitty mpd ncmpcpp nvim
+stow -t ~ dunst fastfetch gtk i3 kitty mpd ncmpcpp nvim
 ```
 Restow after editing a package (safe to re-run):
 ```bash
@@ -69,6 +69,9 @@ Flat directory of standalone bash scripts: polybar module data sources (`cpu_usa
 Rooted at `/`, not `$HOME` (see Overview). `etc/lightdm/lightdm-gtk-greeter.conf` sets theme/icon-theme to match the desktop's `gtk-application-prefer-dark-theme` (see `gtk/`), plus the login background. `var/lib/AccountsService/users/patricio` points AccountsService at the avatar. The avatar image and background image themselves aren't stowed - they're binary files copied into system paths at setup time by `lightdm/setup.sh` (source: `~/.face` and an existing wallpaper from `i3/.config/i3/wallpapers/`), since duplicating them into git would bloat the repo.
 
 The greeter GUI runs as an unprivileged `lightdm` system user (not root, unlike `accounts-daemon`), so it can't read the stowed config through a 700 home directory on its own - `lightdm/setup.sh` also grants that user narrow ACL access (`setfacl`) to just `~/dotfiles/lightdm/`, rather than loosening the home directory itself. Run `sudo ~/dotfiles/lightdm/setup.sh` after stowing (and again any time the ACLs need reapplying, e.g. a fresh home directory).
+
+### fastfetch (`fastfetch/`)
+`.config/fastfetch/config.jsonc` - grouped sections (Hardware/Software/Uptime) with icon-prefixed labels, colored to match the rofi/i3 accent (`#da6e89`). Note the inline color syntax: `{#da6e89}` is for named/ANSI colors, true hex RGB needs a doubled hash - `{##da6e89}` - a single `#` here silently becomes "invalid color code" at runtime, not a config-parse error.
 
 ### Neovim
 LazyVim-based config under `nvim/.config/nvim/`: `init.lua` bootstraps `lua/config/lazy.lua`, which loads `lua/config/{options,keymaps,autocmds}.lua` and any `lua/plugins/*.lua` spec files. `lazy-lock.json` pins plugin commits — don't hand-edit it, let `:Lazy` update it.

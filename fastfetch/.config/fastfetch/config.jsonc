@@ -1,0 +1,51 @@
+{
+    "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+        "padding": {
+            "top": 2,
+            "right": 2
+        }
+    },
+    "display": {
+        "separator": " "
+    },
+    "modules": [
+        {
+            "type": "title",
+            "format": "{##da6e89}{user-name}{#}@{##da6e89}{host-name}{#}"
+        },
+        "break",
+
+        { "type": "custom", "format": "{##da6e89}─────────────────Hardware─────────────────{#}" },
+        { "type": "host", "key": "󰇅 Host", "keyColor": "#da6e89" },
+        { "type": "cpu", "key": " CPU", "keyColor": "#da6e89" },
+        { "type": "gpu", "key": "󰢮 GPU", "keyColor": "#da6e89" },
+        { "type": "display", "key": "󰍹 Display", "keyColor": "#da6e89" },
+        { "type": "memory", "key": " Memory", "keyColor": "#da6e89" },
+        {
+            "type": "disk",
+            "key": " Disk",
+            "keyColor": "#da6e89",
+            "format": "{size-used} / {size-total} ({size-percentage}) - {filesystem} [{mountpoint}]"
+        },
+        "break",
+
+        { "type": "custom", "format": "{##da6e89}─────────────────Software─────────────────{#}" },
+        { "type": "os", "key": "{icon} OS", "keyColor": "#da6e89" },
+        { "type": "kernel", "key": " Kernel", "keyColor": "#da6e89" },
+        { "type": "packages", "key": " Packages", "keyColor": "#da6e89" },
+        { "type": "shell", "key": " Shell", "keyColor": "#da6e89" },
+        { "type": "wm", "key": " WM", "keyColor": "#da6e89" },
+        { "type": "terminal", "key": " Terminal", "keyColor": "#da6e89" },
+        { "type": "font", "key": " Font", "keyColor": "#da6e89" },
+        { "type": "terminalfont", "key": " Terminal Font", "keyColor": "#da6e89" },
+        "break",
+
+        { "type": "custom", "format": "{##da6e89}─────────────Uptime / Network─────────────{#}" },
+        { "type": "uptime", "key": "󰅐 Uptime", "keyColor": "#da6e89" },
+        { "type": "localip", "key": "󰀂 Local IP", "keyColor": "#da6e89", "showIpv4": true },
+        "break",
+
+        "colors"
+    ]
+}
