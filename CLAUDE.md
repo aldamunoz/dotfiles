@@ -10,7 +10,7 @@ Personal Arch Linux desktop dotfiles for an i3 + X11 setup, managed with GNU Sto
 
 Install/stow user packages (run from repo root):
 ```bash
-stow -t ~ dunst fastfetch gtk i3 kitty mpd ncmpcpp nvim
+stow -t ~ dunst fastfetch gtk i3 kitty mpd ncmpcpp nvim zsh
 ```
 Restow after editing a package (safe to re-run):
 ```bash
@@ -72,6 +72,9 @@ The greeter GUI runs as an unprivileged `lightdm` system user (not root, unlike 
 
 ### fastfetch (`fastfetch/`)
 `.config/fastfetch/config.jsonc` - grouped sections (Hardware/Software/Uptime) with icon-prefixed labels, colored to match the rofi/i3 accent (`#da6e89`). Note the inline color syntax: `{#da6e89}` is for named/ANSI colors, true hex RGB needs a doubled hash - `{##da6e89}` - a single `#` here silently becomes "invalid color code" at runtime, not a config-parse error.
+
+### zsh (`zsh/`)
+`.zshrc` is Oh My Zsh's stock bootstrap (theme/plugins/history all come from OMZ - see `~/.oh-my-zsh/lib/history.zsh` before adding history-related options here, it already sets HISTFILE/HISTSIZE/share_history/hist_ignore_dups/etc.) with a loop appended at the end that sources `~/.config/zsh/*.zsh` in lexical order. Add new settings as a numbered file there (`01_options.zsh`, `02_aliases.zsh`, ...) rather than editing `.zshrc` directly, same numbering convention as `i3/config.d/`.
 
 ### Neovim
 LazyVim-based config under `nvim/.config/nvim/`: `init.lua` bootstraps `lua/config/lazy.lua`, which loads `lua/config/{options,keymaps,autocmds}.lua` and any `lua/plugins/*.lua` spec files. `lazy-lock.json` pins plugin commits — don't hand-edit it, let `:Lazy` update it.

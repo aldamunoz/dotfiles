@@ -13,6 +13,7 @@ Personal desktop setup for Arch Linux based on i3, polybar, rofi, kitty, mpd, an
 - multi-monitor-aware monitor and autostart scripts
 - LightDM login screen (theme, background, avatar) under `lightdm/`
 - fastfetch, themed to match the rofi/i3 accent color
+- zsh: Oh My Zsh `.zshrc` plus modular settings/aliases under `~/.config/zsh/`
 
 ## Repository Layout
 
@@ -27,7 +28,7 @@ Personal desktop setup for Arch Linux based on i3, polybar, rofi, kitty, mpd, an
 ├── ncmpcpp/
 ├── nvim/
 ├── packages/
-├── aliases
+├── zsh/
 ├── install.sh
 └── README.md
 ```
@@ -50,8 +51,11 @@ sudo pacman -S --needed \
   bluez bluez-utils \
   xwallpaper feh \
   fastfetch \
+  zsh lsd \
   jq curl wget bc
 ```
+
+zsh also needs [Oh My Zsh](https://ohmyz.sh) itself (not a pacman package - installed via its own script) before stowing the `zsh` package.
 
 ## Optional Packages
 
@@ -75,7 +79,7 @@ cd ~/dotfiles
 2. Stow user packages:
 
 ```bash
-stow -t ~ dunst fastfetch i3 kitty mpd ncmpcpp nvim
+stow -t ~ dunst fastfetch i3 kitty mpd ncmpcpp nvim zsh
 ```
 
 3. Stow the LightDM package (rooted at `/` instead of `$HOME`, since it lives
